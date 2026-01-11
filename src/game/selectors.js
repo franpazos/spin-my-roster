@@ -63,13 +63,16 @@ export function canSpin(state) {
 
 
 // Can undo
-// export function canUndo(state) {
-//   return state.history.length > 0 && state.phase === PHASES.IDLE
-// }
-
-// Alternative version if using `stagedPick` instead of history
 
 export function canUndo(state) {
   return Boolean(state.stagedPick) // o el campo staged actual
+}
+
+// Is it final pick
+
+export function isFinalPick(state) {
+  if (!state.stagedPick) return false
+  const remaining = getAvailableSlots(state).length
+  return remaining === 1
 }
 
