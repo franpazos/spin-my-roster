@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 export function SpinButton({ onClick, disabled, isSpinning, isComplete, isFinalPick }) {
   const buttonText = getSpinButtonLabel({ isSpinning, isComplete, isFinalPick })
