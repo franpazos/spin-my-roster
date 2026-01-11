@@ -4,12 +4,13 @@ import { Panel } from "@/src/components/layout/Panel"
 import { SlotMachineReel } from "./SlotMachineReel"
 import { SpinButton } from "./SpinButton"
 import { PHASES } from "@/src/game/gameReducer"
-import { canSpin, isRosterComplete } from "@/src/game/selectors"
+import { canSpin, isRosterComplete, isFinalPick } from "@/src/game/selectors"
 
 export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
   const isSpinning = state.phase === PHASES.SPINNING
   const complete = isRosterComplete(state)
   const spinAllowed = canSpin(state)
+  const finalPick = isFinalPick(state)
 
   return (
     <Panel className="h-full flex flex-col">
@@ -38,7 +39,13 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
 
       {/* Spin button */}
       <div className="p-4">
-        <SpinButton onClick={onSpin} disabled={!spinAllowed} isSpinning={isSpinning} />
+        <SpinButton 
+          onClick={onSpin} 
+          disabled={!spinAllowed} 
+          isSpinning={isSpinning} 
+          isComplete={complete} 
+          isFinalPick={finalPick}
+        />
       </div>
     </Panel>
   )
