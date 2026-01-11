@@ -13,7 +13,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
   const finalPick = isFinalPick(state)
 
   return (
-    <Panel className="h-full flex flex-col">
+    <Panel className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-zinc-800 text-center">
         <h2 className="text-sm font-medium text-zinc-400 uppercase tracking-wide">
@@ -22,30 +22,32 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
       </div>
 
       {/* Reel */}
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
         <div className="w-full max-w-xs">
           <SlotMachineReel teams={teams} isSpinning={isSpinning} onSpinComplete={onSpinComplete} />
         </div>
       </div>
 
-      {/* Current team indicator */}
-      {state.currentTeam && !isSpinning && (
-        <div className="px-4 pb-2 text-center">
-          <p className="text-emerald-400 text-sm">
-            Select a position to fill from <span className="font-bold">{state.currentTeam.name}</span>
-          </p>
-        </div>
-      )}
+      {/* Sticky footer: current team indicator + button always visible */}
+      <div className="sticky bottom-0 left-0 right-0 border-t border-zinc-800 bg-zinc-900/80 backdrop-blur">
+        {state.currentTeam && !isSpinning && (
+          <div className="px-4 pt-3 text-center">
+            <p className="text-emerald-400 text-sm leading-snug line-clamp-2">
+              Select a position to fill from <span className="font-bold">{state.currentTeam.name}</span>
+            </p>
+          </div>
+        )}
 
-      {/* Spin button */}
-      <div className="p-4">
-        <SpinButton 
-          onClick={onSpin} 
-          disabled={!spinAllowed} 
-          isSpinning={isSpinning} 
-          isComplete={complete} 
-          isFinalPick={finalPick}
-        />
+        {/* Spin button */}
+        <div className="p-4">
+          <SpinButton
+            onClick={onSpin}
+            disabled={!spinAllowed}
+            isSpinning={isSpinning}
+            isComplete={complete}
+            isFinalPick={finalPick}
+          />
+        </div>
       </div>
     </Panel>
   )
