@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { Panel } from "@/src/components/layout/Panel"
-import { PositionPicker } from "./PositionPicker"
-import { PlayerList } from "./PlayerList"
-import { PHASES } from "@/src/game/gameReducer"
-import { ROSTER_FORMAT } from "@/src/game/rosterFormat"
-import { ChevronLeft, Trophy } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useRef } from "react";
+import { Panel } from "@/src/components/layout/Panel";
+import { PositionPicker } from "./PositionPicker";
+import { PlayerList } from "./PlayerList";
+import { RosterExportCard } from "../share/RosterExportCard";
+import { RosterShareBar } from "../share/RosterShareBar";
+import { PHASES } from "@/src/game/gameReducer";
+import { ROSTER_FORMAT } from "@/src/game/rosterFormat";
+import { ChevronLeft, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack }) {
-  const { phase, currentTeam, selectedSlot, usedPlayerIds, roster } = state
+export function SelectionPanel({
+  state,
+  onSelectPosition,
+  onSelectPlayer,
+  onBack,
+}) {
+  const { phase, currentTeam, selectedSlot, usedPlayerIds, roster } = state;
 
   // Idle state - show instructions
   if (phase === PHASES.IDLE) {
@@ -22,9 +30,7 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           <h3 className="text-white text-xl font-medium mb-2">
             Ready to Play?
           </h3>
-          <p className="text-zinc-500 text-md max-w-xs">
-            Spin to get a team.
-          </p>
+          <p className="text-zinc-500 text-md max-w-xs">Spin to get a team.</p>
           <p className="text-zinc-500 text-md max-w-xs">
             Pick a position and a player.
           </p>
@@ -34,12 +40,10 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           <p className="text-zinc-500 text-md max-w-xs mt-3">
             Fill all slots to complete your roster.
           </p>
-          <p className="text-zinc-500 text-md max-w-xs">
-            No repeats.
-          </p>
+          <p className="text-zinc-500 text-md max-w-xs">No repeats.</p>
         </div>
       </Panel>
-    )
+    );
   }
 
   // Spinning state
@@ -50,7 +54,7 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           <div className="animate-bounce text-4xl">🎰</div>
         </div>
       </Panel>
-    )
+    );
   }
 
   // Choose position state
@@ -59,7 +63,11 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
       <Panel className="h-full">
         <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-3">
           {currentTeam?.logoUrl && (
-            <img src={currentTeam.logoUrl || "/placeholder.svg"} alt={currentTeam.abbr} className="w-8 h-8" />
+            <img
+              src={currentTeam.logoUrl || "/placeholder.svg"}
+              alt={currentTeam.abbr}
+              className="w-8 h-8"
+            />
           )}
           <div>
             <h2 className="text-white font-medium">{currentTeam?.name}</h2>
@@ -68,27 +76,38 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
         </div>
         <PositionPicker state={state} onSelect={onSelectPosition} />
       </Panel>
-    )
+    );
   }
 
   // Choose player state
   if (phase === PHASES.CHOOSE_PLAYER) {
-    const slotConfig = ROSTER_FORMAT[selectedSlot]
+    const slotConfig = ROSTER_FORMAT[selectedSlot];
 
     return (
       <Panel className="h-full flex flex-col">
         {/* Header with back button */}
         <div className="px-4 py-3 border-b border-zinc-800">
-          <Button variant="ghost" size="sm" onClick={onBack} className="text-zinc-400 hover:text-white -ml-2 mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="text-zinc-400 hover:text-white -ml-2 mb-2"
+          >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back to positions
           </Button>
           <div className="flex items-center gap-3">
             {currentTeam?.logoUrl && (
-              <img src={currentTeam.logoUrl || "/placeholder.svg"} alt={currentTeam.abbr} className="w-8 h-8" />
+              <img
+                src={currentTeam.logoUrl || "/placeholder.svg"}
+                alt={currentTeam.abbr}
+                className="w-8 h-8"
+              />
             )}
             <div>
-              <h2 className="text-white font-medium">Select {slotConfig?.fullLabel}</h2>
+              <h2 className="text-white font-medium">
+                Select {slotConfig?.fullLabel}
+              </h2>
               <p className="text-zinc-500 text-xs">from {currentTeam?.name}</p>
             </div>
           </div>
@@ -104,25 +123,46 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           />
         </div>
       </Panel>
-    )
+    );
   }
 
   // Complete state
   if (phase === PHASES.COMPLETE) {
+    const exportRef = useRef(null);
+    const shareUrl =
+      typeof window !== "undefined" ? window.location.origin : "";
+
     return (
       <Panel title="Congratulations!" className="h-full">
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="w-20 h-20 rounded-full bg-emerald-600/20 flex items-center justify-center mb-4">
             <Trophy className="w-10 h-10 text-emerald-500" />
           </div>
-          <h3 className="text-white font-bold text-xl mb-2">Roster Complete!</h3>
+
+          <h3 className="text-white font-bold text-xl mb-2">
+            Roster Complete!
+          </h3>
+
           <p className="text-zinc-500 text-sm max-w-xs mb-6">
-            You've built your dream team. Share it with friends or reset to try again!
+            You've built your dream team. Share it with friends or reset to try
+            again!
           </p>
+
+          {/* Buttons */}
+          <RosterShareBar exportRef={exportRef} shareUrl={shareUrl} />
+
+          {/* Hidden Export card */}
+          <div className="fixed left-[-9999px] top-0">
+            <RosterExportCard
+              ref={exportRef}
+              roster={roster}
+              shareUrl={shareUrl}
+            />
+          </div>
         </div>
       </Panel>
-    )
+    );
   }
 
-  return null
+  return null;
 }
