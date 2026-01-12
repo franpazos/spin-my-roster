@@ -1,17 +1,22 @@
-"use client"
+"use client";
 
-import { Panel } from "@/src/components/layout/Panel"
-import { SlotMachineReel } from "./SlotMachineReel"
-import { SpinButton } from "./SpinButton"
-import { PHASES } from "@/src/game/gameReducer"
-import { canSpin, isRosterComplete, isFinalPick, getReelHint } from "@/src/game/selectors"
+import { Panel } from "@/src/components/layout/Panel";
+import { SlotMachineReel } from "./SlotMachineReel";
+import { SpinButton } from "./SpinButton";
+import { PHASES } from "@/src/game/gameReducer";
+import {
+  canSpin,
+  isRosterComplete,
+  isFinalPick,
+  getReelHint,
+} from "@/src/game/selectors";
 
 export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
-  const isSpinning = state.phase === PHASES.SPINNING
-  const complete = isRosterComplete(state)
-  const spinAllowed = canSpin(state)
-  const finalPick = isFinalPick(state)
-  const hint = getReelHint(state)
+  const isSpinning = state.phase === PHASES.SPINNING;
+  const complete = isRosterComplete(state);
+  const spinAllowed = canSpin(state);
+  const finalPick = isFinalPick(state);
+  const hint = getReelHint(state);
 
   return (
     <Panel className="h-full flex flex-col overflow-hidden">
@@ -25,7 +30,12 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
       {/* Reel */}
       <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
         <div className="w-full max-w-xs">
-          <SlotMachineReel teams={teams} isSpinning={isSpinning} onSpinComplete={onSpinComplete} />
+          <SlotMachineReel
+            teams={teams}
+            isSpinning={isSpinning}
+            onSpinComplete={onSpinComplete}
+            lockedTeam={state.currentTeam}
+          />
         </div>
       </div>
 
@@ -38,9 +48,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
             </p>
 
             {hint.subtitle && (
-              <p className="text-zinc-400 text-md mt-1">
-                {hint.subtitle}
-              </p>
+              <p className="text-zinc-400 text-md mt-1">{hint.subtitle}</p>
             )}
           </div>
         )}
@@ -57,5 +65,5 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
         </div>
       </div>
     </Panel>
-  )
+  );
 }
