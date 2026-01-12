@@ -19,9 +19,23 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
             <span className="text-2xl">🎰</span>
           </div>
-          <h3 className="text-white font-medium mb-2">Ready to Play?</h3>
-          <p className="text-zinc-500 text-sm max-w-xs">
-            Press the SPIN button to randomly select an NFL team, then pick a player to add to your roster.
+          <h3 className="text-white text-xl font-medium mb-2">
+            Ready to Play?
+          </h3>
+          <p className="text-zinc-500 text-md max-w-xs">
+            Spin to get a team.
+          </p>
+          <p className="text-zinc-500 text-md max-w-xs">
+            Pick a position and a player.
+          </p>
+          <p className="text-zinc-500 text-md max-w-xs">
+            Spin again to lock it in.
+          </p>
+          <p className="text-zinc-500 text-md max-w-xs mt-3">
+            Fill all slots to complete your roster.
+          </p>
+          <p className="text-zinc-500 text-md max-w-xs">
+            No repeats.
           </p>
         </div>
       </Panel>

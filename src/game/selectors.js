@@ -76,3 +76,45 @@ export function isFinalPick(state) {
   return remaining === 1
 }
 
+// Get hint or instruction
+
+export function getReelHint(state) {
+  // Don’t show hints while spinning or after completion
+  if (state.phase === PHASES.SPINNING) return null
+  if (isRosterComplete(state)) return null
+
+  const teamName = state.currentTeam?.name
+  const staged = state.stagedPick
+
+  // Before first spin (no team yet) -> no hint
+  if (!state.currentTeam) return null
+
+  // Team selected, but no staged pick yet -> prompt to choose position
+  if (!staged) {
+    return {
+      title: `Select a position to fill from ${teamName}`,
+      subtitle: null,
+      tone: "info",
+    }
+  }
+
+  // Staged pick exists -> tell user to spin to confirm
+  const slotLabel = ROSTER_FORMAT?.[staged.slotKey]?.label || staged.slotKey
+  const playerName = staged.player?.name
+
+  if (isFinalPick(state)) {
+    return {
+      title: `Final pick: ${slotLabel}${playerName ? ` — ${playerName}` : ""}`,
+      subtitle: `Confirm to complete your roster`,
+      tone: "success",
+    }
+  }
+
+  return {
+    title: `Selected: ${slotLabel}${playerName ? ` — ${playerName}` : ""}`,
+    subtitle: "Spin again to confirm",
+    tone: "success",
+  }
+}
+
+
