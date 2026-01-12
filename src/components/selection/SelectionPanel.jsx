@@ -31,7 +31,7 @@ export function SelectionPanel({ state, onSelectPosition, onSelectPlayer, onBack
           <p className="text-zinc-500 text-md max-w-xs">
             Spin again to lock it in.
           </p>
-          <p className="text-zinc-500 text-md max-w-xs">
+          <p className="text-zinc-500 text-md max-w-xs mt-3">
             Fill all slots to complete your roster.
           </p>
           <p className="text-zinc-500 text-md max-w-xs">
