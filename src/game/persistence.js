@@ -1,5 +1,5 @@
 const STORAGE_KEY = "spin_my_roster_game"
-const STORAGE_VERSION = 1
+const STORAGE_VERSION = 2
 
 // Save game state to localStorage
 export function saveGame(state) {
@@ -8,11 +8,11 @@ export function saveGame(state) {
       version: STORAGE_VERSION,
       timestamp: Date.now(),
       roster: state.roster,
-      // history: state.history.map((h) => ({
-      //   ...h,
-      //   usedPlayerIds: Array.from(h.usedPlayerIds),
-      // })),
       usedPlayerIds: Array.from(state.usedPlayerIds),
+      phase: state.phase,
+      currentTeam: state.currentTeam,
+      selectedSlot: state.selectedSlot,
+      stagedPick: state.stagedPick,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serialized))
   } catch (e) {
@@ -36,11 +36,11 @@ export function loadGame() {
 
     return {
       roster: parsed.roster,
-      // history: parsed.history.map((h) => ({
-      //   ...h,
-      //   usedPlayerIds: new Set(h.usedPlayerIds),
-      // })),
       usedPlayerIds: parsed.usedPlayerIds,
+      phase: parsed.phase,
+      currentTeam: parsed.currentTeam,
+      selectedSlot: parsed.selectedSlot,
+      stagedPick: parsed.stagedPick,
     }
   } catch (e) {
     console.error("Failed to load game:", e)

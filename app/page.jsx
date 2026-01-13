@@ -44,7 +44,12 @@ export default function HomePage() {
   useEffect(() => {
     const saved = loadGame()
     if (saved) {
-      dispatch(loadState({ ...saved, phase: PHASES.IDLE, currentTeam: null, selectedSlot: null }))
+      const sanitized =
+        saved?.phase === PHASES.SPINNING
+          ? { ...saved, phase: PHASES.IDLE } // If game is in progress, reset to IDLE
+          : saved
+
+      dispatch(loadState(sanitized))
     }
   }, [])
 
