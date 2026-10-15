@@ -11,8 +11,7 @@ export const ENDPOINTS = {
   // Get team info (includes coach refs)
   teamInfo: (teamId) => `${BASE_URL}/teams/${teamId}`,
 
-  // Get team head coach
-
-  coachesIndex: (season = "2025" ) =>
-    `${CORE_BASE_URL}/sports/football/leagues/nfl/seasons/${season}/coaches?limit=100`,
+  // Get the head coach assigned to a team for a season
+  teamCoaches: (teamId, season) =>
+    `${CORE_BASE_URL}/sports/football/leagues/nfl/seasons/${season}/teams/${teamId}/coaches`,
 }

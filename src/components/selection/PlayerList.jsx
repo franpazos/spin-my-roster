@@ -20,6 +20,7 @@ export function PlayerList({ teamId, slotKey, usedPlayerIds, onSelect }) {
         // For HC slot, fetch coach instead
         if (slotKey === "HC") {
           const res = await fetch(`/api/head-coaches?teamId=${teamId}`)
+          if (!res.ok) throw new Error(`Failed to fetch coach: ${res.status}`)
           const data = await res.json()
           if (data.coach) {
             setPlayers([{ ...data.coach, position: "HC" }])

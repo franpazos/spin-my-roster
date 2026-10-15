@@ -95,6 +95,7 @@ export default function HomePage() {
         } else if (slotKey === "HC") {
           try {
             const res = await fetch(`/api/head-coaches?teamId=${state.currentTeam.id}`)
+            if (!res.ok) throw new Error(`Failed to fetch coach: ${res.status}`)
             const data = await res.json()
             console.log("Head coach response:", data)
 
