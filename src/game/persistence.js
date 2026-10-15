@@ -9,6 +9,7 @@ export function saveGame(state) {
       timestamp: Date.now(),
       roster: state.roster,
       usedPlayerIds: Array.from(state.usedPlayerIds),
+      usedTeamIds: Array.from(state.usedTeamIds),
       phase: state.phase,
       currentTeam: state.currentTeam,
       selectedSlot: state.selectedSlot,
@@ -34,9 +35,14 @@ export function loadGame() {
       return null
     }
 
+    const rosterTeamIds = Object.values(parsed.roster || {})
+      .map((player) => player?.team?.id)
+      .filter(Boolean)
+
     return {
       roster: parsed.roster,
       usedPlayerIds: parsed.usedPlayerIds,
+      usedTeamIds: parsed.usedTeamIds || rosterTeamIds,
       phase: parsed.phase,
       currentTeam: parsed.currentTeam,
       selectedSlot: parsed.selectedSlot,

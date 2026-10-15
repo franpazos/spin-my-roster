@@ -19,6 +19,7 @@ export function createInitialState() {
     selectedSlot: null,
     // history: [], // history might not be needed if using stagedPick
     usedPlayerIds: new Set(),
+    usedTeamIds: new Set(),
     stagedPick: null, // Added stagedPick to track the currently selected player before committing
   }
 }
@@ -79,9 +80,13 @@ export function gameReducer(state, action) {
    }
 
     case ACTIONS.SET_CURRENT_TEAM: {
+      const usedTeamIds = new Set(state.usedTeamIds)
+      usedTeamIds.add(action.payload.team.id)
+
       return {
         ...state,
         currentTeam: action.payload.team,
+        usedTeamIds,
         phase: PHASES.CHOOSE_POSITION,
       }
     }
@@ -146,6 +151,7 @@ export function gameReducer(state, action) {
       return {
         ...action.payload,
         usedPlayerIds: new Set(action.payload.usedPlayerIds || []),
+        usedTeamIds: new Set(action.payload.usedTeamIds || []),
       }
     }
 

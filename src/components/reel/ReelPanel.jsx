@@ -17,6 +17,9 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
   const spinAllowed = canSpin(state);
   const finalPick = isFinalPick(state);
   const hint = getReelHint(state);
+  const availableTeams = teams.filter(
+    (team) => !state.usedTeamIds.has(team.id),
+  );
 
   return (
     <Panel className="h-full flex flex-col overflow-hidden">
@@ -31,7 +34,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
       <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
         <div className="w-full max-w-xs">
           <SlotMachineReel
-            teams={teams}
+            teams={availableTeams}
             isSpinning={isSpinning}
             onSpinComplete={onSpinComplete}
             lockedTeam={state.currentTeam}
