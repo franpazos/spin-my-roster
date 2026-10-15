@@ -1,6 +1,26 @@
 import { ACTIONS } from "./actions"
 import { createEmptyRoster } from "./rosterFormat"
 
+function restoreUsedTeamIds(state) {
+  const usedTeamIds = new Set(
+    Array.from(state.usedTeamIds || [], (teamId) => String(teamId)),
+  )
+
+  for (const player of Object.values(state.roster || {})) {
+    if (player?.team?.id) usedTeamIds.add(String(player.team.id))
+  }
+
+  if (state.currentTeam?.id) {
+    usedTeamIds.add(String(state.currentTeam.id))
+  }
+
+  if (state.stagedPick?.player?.team?.id) {
+    usedTeamIds.add(String(state.stagedPick.player.team.id))
+  }
+
+  return usedTeamIds
+}
+
 // Game phases
 export const PHASES = {
   IDLE: "IDLE", // Initial state, waiting to spin
@@ -81,7 +101,7 @@ export function gameReducer(state, action) {
 
     case ACTIONS.SET_CURRENT_TEAM: {
       const usedTeamIds = new Set(state.usedTeamIds)
-      usedTeamIds.add(action.payload.team.id)
+      usedTeamIds.add(String(action.payload.team.id))
 
       return {
         ...state,
@@ -151,7 +171,7 @@ export function gameReducer(state, action) {
       return {
         ...action.payload,
         usedPlayerIds: new Set(action.payload.usedPlayerIds || []),
-        usedTeamIds: new Set(action.payload.usedTeamIds || []),
+        usedTeamIds: restoreUsedTeamIds(action.payload),
       }
     }
 

@@ -18,7 +18,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
   const finalPick = isFinalPick(state);
   const hint = getReelHint(state);
   const availableTeams = teams.filter(
-    (team) => !state.usedTeamIds.has(team.id),
+    (team) => !state.usedTeamIds.has(String(team.id)),
   );
 
   return (

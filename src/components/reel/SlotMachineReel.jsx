@@ -11,25 +11,6 @@ export function SlotMachineReel({
   onSpinComplete,
   lockedTeam,
 }) {
-  // If we already have a currentTeam (persisted after refresh), show it as the reel result
-  if (lockedTeam && !isSpinning) {
-    return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <img
-            src={lockedTeam.logoUrl}
-            alt={lockedTeam.abbr}
-            className="w-16 h-16 object-contain"
-          />
-          <div className="text-sm font-semibold text-white">
-            {lockedTeam.name}
-          </div>
-          <div className="text-xs text-zinc-400">{lockedTeam.abbr}</div>
-        </div>
-      </div>
-    );
-  }
-
   const [displayTeams, setDisplayTeams] = useState([null, null, null]);
   const [isAnimating, setIsAnimating] = useState(false);
   const spinIntervalRef = useRef(null);
@@ -83,6 +64,25 @@ export function SlotMachineReel({
       if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current);
     };
   }, [isSpinning, teams, onSpinComplete]);
+
+  // If we already have a currentTeam (persisted after refresh), show it as the reel result
+  if (lockedTeam && !isSpinning) {
+    return (
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src={lockedTeam.logoUrl}
+            alt={lockedTeam.abbr}
+            className="w-16 h-16 object-contain"
+          />
+          <div className="text-sm font-semibold text-white">
+            {lockedTeam.name}
+          </div>
+          <div className="text-xs text-zinc-400">{lockedTeam.abbr}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-72 overflow-hidden">

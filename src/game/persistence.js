@@ -35,14 +35,10 @@ export function loadGame() {
       return null
     }
 
-    const rosterTeamIds = Object.values(parsed.roster || {})
-      .map((player) => player?.team?.id)
-      .filter(Boolean)
-
     return {
       roster: parsed.roster,
       usedPlayerIds: parsed.usedPlayerIds,
-      usedTeamIds: parsed.usedTeamIds || rosterTeamIds,
+      usedTeamIds: parsed.usedTeamIds,
       phase: parsed.phase,
       currentTeam: parsed.currentTeam,
       selectedSlot: parsed.selectedSlot,
