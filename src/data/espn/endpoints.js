@@ -8,6 +8,9 @@ export const ENDPOINTS = {
   // Get single team with roster
   teamRoster: (teamId) => `${BASE_URL}/teams/${teamId}/roster`,
 
+  // Get team depth chart (offense, defense and special teams formations)
+  teamDepthChart: (teamId) => `${BASE_URL}/teams/${teamId}/depthcharts`,
+
   // Get team info (includes coach refs)
   teamInfo: (teamId) => `${BASE_URL}/teams/${teamId}`,
 

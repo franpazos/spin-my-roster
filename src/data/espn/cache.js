@@ -6,6 +6,7 @@ export const CACHE_TTL = {
   TEAMS: 24 * 60 * 60 * 1000, // 24 hours
   ROSTER: 7 * 24 * 60 * 60 * 1000, // 7 days
   COACHES: 24 * 60 * 60 * 1000, // 24 hours
+  DEPTH_CHART: 12 * 60 * 60 * 1000, // 12 hours: depth charts move during the week
 }
 
 export function getFromCache(key) {
