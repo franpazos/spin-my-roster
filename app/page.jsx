@@ -16,7 +16,10 @@ import {
   loadState,
 } from "@/src/game/actions"
 import { saveGame, loadGame, clearGame } from "@/src/game/persistence"
-import { ROSTER_FORMAT } from "@/src/game/rosterFormat"
+import { ROSTER_FORMAT, ROSTER_SLOT_ORDER } from "@/src/game/rosterFormat"
+import { getFilledSlotsCount } from "@/src/game/selectors"
+import { BrandMark, BrandWordmark } from "@/src/components/brand/BrandMark"
+import { PhaseTracker } from "@/src/components/layout/PhaseTracker"
 
 export default function HomePage() {
   const [state, dispatch] = useReducer(gameReducer, null, createInitialState)
@@ -29,7 +32,6 @@ export default function HomePage() {
       try {
         const res = await fetch("/api/teams")
         const data = await res.json()
-        console.log("[v0] Teams data:", data)
         setTeams(data.teams || [])
       } catch (e) {
         console.error("[v0] Failed to fetch teams:", e)
@@ -97,7 +99,6 @@ export default function HomePage() {
             const res = await fetch(`/api/head-coaches?teamId=${state.currentTeam.id}`)
             if (!res.ok) throw new Error(`Failed to fetch coach: ${res.status}`)
             const data = await res.json()
-            console.log("Head coach response:", data)
 
             if (data.coach) {
               dispatch(
@@ -155,33 +156,63 @@ export default function HomePage() {
     dispatch(reset())
   }, [])
 
+  const filledCount = getFilledSlotsCount(state)
+  const totalSlots = ROSTER_SLOT_ORDER.length
+
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
-      {/* Header */}
-      <header className="h-[var(--header-h)] shrink-0 border-b border-line px-4">
-        <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime font-display text-lg font-bold text-lime-ink">
-              S
-            </div>
-            <div>
-              <h1 className="font-display text-lg font-bold uppercase text-ink">Spin My Roster</h1>
-              <p className="text-xs text-ink-muted">Build your dream team</p>
-            </div>
+      <header className="shrink-0 border-b border-line bg-surface-0/70 backdrop-blur-md">
+        <div className="mx-auto flex h-[var(--header-h)] max-w-[1440px] items-center gap-4 px-4 lg:px-6">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <BrandMark className="h-9 w-9 shrink-0" title="" />
+            <h1 className="truncate">
+              <BrandWordmark className="text-xl sm:text-2xl" />
+            </h1>
           </div>
+
+          <PhaseTracker state={state} className="mx-auto hidden lg:flex" />
+
+          <div
+            className="ml-auto flex items-baseline gap-1.5 rounded-lg border border-line bg-surface-2 px-3 py-1.5 lg:ml-0"
+            aria-label={`${filledCount} of ${totalSlots} picks locked`}
+          >
+            <span className="eyebrow text-[0.6875rem]">Picks</span>
+            <span className="font-display text-xl font-extrabold leading-none text-ink">
+              {filledCount}
+              <span className="text-ink-dim">/{totalSlots}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile and tablet scoreboard strip */}
+        <div className="mx-auto max-w-xl border-t border-line px-2 py-1.5 lg:hidden">
+          <PhaseTracker state={state} compact />
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col p-4 lg:min-h-0">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-3 sm:p-4 lg:min-h-0 lg:px-6">
         {teamsLoading ? (
-          <div className="flex flex-1 items-center justify-center">
-            <div className="text-ink-muted">Loading teams...</div>
-          </div>
+          <LoadingStage />
         ) : (
-          <div className="grid flex-1 grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-3">
-            {/* Left: Roster Panel */}
-            <div className="lg:min-h-0">
+          <div className="grid flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)]">
+            {/* Reel: first on mobile, centre stage on desktop */}
+            <div className="order-1 lg:order-2 lg:min-h-0">
+              <ReelPanel state={state} teams={teams} onSpin={handleSpin} onSpinComplete={handleSpinComplete} />
+            </div>
+
+            {/* Contextual selection */}
+            <div className="order-2 lg:order-3 lg:min-h-0">
+              <SelectionPanel
+                state={state}
+                onSelectPosition={handleSelectPosition}
+                onSelectPlayer={handleSelectPlayer}
+                onBack={handleBack}
+                onReset={handleReset}
+              />
+            </div>
+
+            {/* Lineup and secondary controls */}
+            <div className="order-3 md:col-span-2 lg:order-1 lg:col-span-1 lg:min-h-0">
               <RosterPanel
                 state={state}
                 onSelectPosition={handleSelectPosition}
@@ -189,24 +220,23 @@ export default function HomePage() {
                 onReset={handleReset}
               />
             </div>
-
-            {/* Center: Reel Panel */}
-            <div className="lg:min-h-0">
-              <ReelPanel state={state} teams={teams} onSpin={handleSpin} onSpinComplete={handleSpinComplete} />
-            </div>
-
-            {/* Right: Selection Panel */}
-            <div className="lg:min-h-0">
-              <SelectionPanel
-                state={state}
-                onSelectPosition={handleSelectPosition}
-                onSelectPlayer={handleSelectPlayer}
-                onBack={handleBack}
-              />
-            </div>
           </div>
         )}
       </main>
+    </div>
+  )
+}
+
+function LoadingStage() {
+  return (
+    <div
+      className="grid flex-1 grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)]"
+      role="status"
+      aria-label="Loading teams"
+    >
+      <div className="skeleton order-1 h-80 rounded-xl lg:order-2 lg:h-full" />
+      <div className="skeleton order-2 h-56 rounded-xl lg:order-3 lg:h-full" />
+      <div className="skeleton order-3 h-96 rounded-xl md:col-span-2 lg:order-1 lg:col-span-1 lg:h-full" />
     </div>
   )
 }
