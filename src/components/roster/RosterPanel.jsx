@@ -1,85 +1,129 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Panel } from "@/src/components/layout/Panel"
 import { RosterSlotRow } from "./RosterSlotRow"
 import { ROSTER_SLOT_ORDER } from "@/src/game/rosterFormat"
 import { getAvailableSlots, getFilledSlotsCount } from "@/src/game/selectors"
 import { PHASES } from "@/src/game/gameReducer"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { RotateCcw, Undo2 } from "lucide-react"
+
+const RESET_CONFIRM_MS = 3500
 
 export function RosterPanel({ state, onSelectPosition, onUndo, onReset }) {
   const availableSlots = getAvailableSlots(state)
   const filledCount = getFilledSlotsCount(state)
   const canSelectPosition = state.phase === PHASES.CHOOSE_POSITION
+  const total = ROSTER_SLOT_ORDER.length
+  const canUndo = Boolean(state.stagedPick) && state.phase === PHASES.IDLE
+  const canReset = filledCount > 0
+
+  // Reset is destructive: the first click arms it, the second one resets.
+  const [confirmReset, setConfirmReset] = useState(false)
+  useEffect(() => {
+    if (!confirmReset) return
+    const timer = setTimeout(() => setConfirmReset(false), RESET_CONFIRM_MS)
+    return () => clearTimeout(timer)
+  }, [confirmReset])
+
+  function handleReset() {
+    if (!confirmReset) {
+      setConfirmReset(true)
+      return
+    }
+    setConfirmReset(false)
+    onReset()
+  }
 
   return (
-    <Panel title="Your Roster" className="h-full">
-      {/* Progress bar */}
-      <div className="px-4 pt-3">
-        <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
-          <span>Progress</span>
-          <span>
-            {filledCount} / {ROSTER_SLOT_ORDER.length}
-          </span>
+    <Panel
+      className="h-full"
+      aria-label="Your lineup"
+      header={
+        <div className="border-b border-line px-4 pb-3 pt-3.5">
+          <div className="flex items-end justify-between gap-3">
+            <h2 className="font-display text-2xl font-extrabold uppercase leading-none tracking-wide text-ink">
+              Your lineup
+            </h2>
+            <p className="font-display text-2xl font-extrabold leading-none text-ink">
+              {filledCount}
+              <span className="text-ink-dim">/{total}</span>
+              <span className="sr-only"> slots locked</span>
+            </p>
+          </div>
+          {/* Segmented progress: one tick per slot */}
+          <div className="mt-3 grid grid-cols-8 gap-1" aria-hidden="true">
+            {ROSTER_SLOT_ORDER.map((slotKey) => {
+              const locked = state.roster[slotKey] !== null
+              const staged = state.stagedPick?.slotKey === slotKey
+              return (
+                <span
+                  key={slotKey}
+                  className={cn(
+                    "h-1.5 rounded-full transition-colors duration-300",
+                    locked ? "bg-lime" : staged ? "bg-lime/40" : "bg-surface-4",
+                  )}
+                />
+              )
+            })}
+          </div>
         </div>
-        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-emerald-500 transition-all duration-300"
-            style={{ width: `${(filledCount / ROSTER_SLOT_ORDER.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Roster slots */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-1">
+      }
+    >
+      <ul className="scroll-slim grid flex-1 grid-cols-1 content-start gap-1.5 p-2.5 md:grid-cols-2 md:overflow-y-auto lg:grid-cols-1">
         {ROSTER_SLOT_ORDER.map((slotKey) => {
-          const comitted = state.roster[slotKey]
+          const committed = state.roster[slotKey]
           const stagedForThisSlot = state.stagedPick?.slotKey === slotKey ? state.stagedPick.player : null
 
-          const playerToShow = comitted ?? stagedForThisSlot
-          const isStaged = !comitted && Boolean(stagedForThisSlot)
-          
+          const playerToShow = committed ?? stagedForThisSlot
+          const isStaged = !committed && Boolean(stagedForThisSlot)
+
           const isAvailable = availableSlots.includes(slotKey)
           const isActive = state.selectedSlot === slotKey
 
           return (
-            <RosterSlotRow
-              key={slotKey}
-              slotKey={slotKey}
-              player={playerToShow}
-              isStaged={isStaged}
-              isActive={isActive}
-              isAvailable={isAvailable && canSelectPosition}
-              onClick={() => canSelectPosition && isAvailable && onSelectPosition(slotKey)}
-            />
+            <li key={slotKey}>
+              <RosterSlotRow
+                slotKey={slotKey}
+                player={playerToShow}
+                isStaged={isStaged}
+                isActive={isActive}
+                isAvailable={isAvailable && canSelectPosition}
+                onClick={() => canSelectPosition && isAvailable && onSelectPosition(slotKey)}
+              />
+            </li>
           )
         })}
-      </div>
+      </ul>
 
-      {/* Actions */}
-      <div className="p-3 border-t border-zinc-800 flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
+      {/* Secondary controls */}
+      <div className="flex items-center justify-between gap-2 border-t border-line px-2.5 py-2">
+        <button
+          type="button"
           onClick={onUndo}
-          // disabled={state.history.length === 0 || state.phase !== PHASES.IDLE}
-          disabled={!state.stagedPick || state.phase !== PHASES.IDLE}
-          className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-300"
+          disabled={!canUndo}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-ink transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:text-ink-dim disabled:hover:bg-transparent"
         >
-          <Undo2 className="w-4 h-4 mr-1.5" />
-          Undo
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onReset}
-          disabled={filledCount === 0}
-          className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-300"
+          <Undo2 className="h-4 w-4" aria-hidden="true" />
+          Undo pick
+        </button>
+
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={!canReset}
+          aria-live="polite"
+          className={cn(
+            "inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:text-ink-dim/70",
+            confirmReset
+              ? "bg-danger/15 text-danger ring-1 ring-danger/50"
+              : "text-ink-muted hover:bg-danger/10 hover:text-danger disabled:hover:bg-transparent",
+          )}
         >
-          <RotateCcw className="w-4 h-4 mr-1.5" />
-          Reset
-        </Button>
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
+          {confirmReset ? "Tap again to reset" : "Reset"}
+        </button>
       </div>
     </Panel>
   )
