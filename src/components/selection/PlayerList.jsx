@@ -103,21 +103,36 @@ export function PlayerList({ teamId, teamName, teamColor, slotKey, usedPlayerIds
     )
   }
 
+  // The API already sorts by depth chart; here we only split it into sections.
+  const groups = [
+    { title: "Starters", players: players.filter((p) => p.depth?.starter) },
+    { title: "Backups", players: players.filter((p) => p.depth && !p.depth.starter) },
+    { title: "Rest of roster", players: players.filter((p) => !p.depth) },
+  ].filter((group) => group.players.length > 0)
+  const showHeadings = groups.length > 1
+
   return (
-    <ul className="space-y-0.5 p-2">
-      {players.map((player) => {
-        const isUsed = usedPlayerIds.has(player.id)
-        return (
-          <li key={player.id}>
-            <PlayerRow
-              player={player}
-              teamColor={teamColor}
-              isDisabled={isUsed}
-              onClick={() => !isUsed && onSelect(player)}
-            />
-          </li>
-        )
-      })}
-    </ul>
+    <div className="p-2">
+      {groups.map((group) => (
+        <section key={group.title} aria-label={showHeadings ? group.title : undefined}>
+          {showHeadings && <h3 className="eyebrow px-2.5 pb-1 pt-2 text-[0.6875rem]">{group.title}</h3>}
+          <ul className="space-y-0.5">
+            {group.players.map((player) => {
+              const isUsed = usedPlayerIds.has(player.id)
+              return (
+                <li key={player.id}>
+                  <PlayerRow
+                    player={player}
+                    teamColor={teamColor}
+                    isDisabled={isUsed}
+                    onClick={() => !isUsed && onSelect(player)}
+                  />
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
   )
 }

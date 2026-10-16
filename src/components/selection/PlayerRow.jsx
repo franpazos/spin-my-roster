@@ -2,6 +2,7 @@
 
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PlayerAvatar } from "@/src/components/roster/PlayerAvatar"
 
 export function PlayerRow({ player, isDisabled, onClick, teamColor }) {
   return (
@@ -15,33 +16,26 @@ export function PlayerRow({ player, isDisabled, onClick, teamColor }) {
         "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:active:scale-100",
       )}
     >
-      {/* Headshot with a team-colour ring */}
-      <span
-        className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 bg-surface-3"
-        style={{ borderColor: teamColor || "var(--line-strong)" }}
-      >
-        {player.headshotUrl ? (
-          <img
-            src={player.headshotUrl}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover object-top"
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-ink-muted">
-            {player.jersey || "?"}
-          </span>
-        )}
-      </span>
+      <PlayerAvatar player={player} team={{ color: teamColor }} className="h-12 w-12" />
 
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[0.9375rem] font-semibold text-ink">{player.name}</span>
         <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
           <span className="font-display text-sm font-bold text-ink">#{player.jersey || "–"}</span>
-          <span className="rounded bg-surface-4 px-1.5 py-0.5 font-display text-[0.6875rem] font-bold uppercase tracking-wider text-ink">
-            {player.position}
+          {/* Depth chart spot (WR1, QB2…) when ESPN lists the player, else the plain position */}
+          <span
+            className={cn(
+              "rounded px-1.5 py-0.5 font-display text-[0.6875rem] font-bold uppercase tracking-wider",
+              player.depth?.starter ? "bg-lime text-lime-ink" : "bg-surface-4 text-ink",
+            )}
+          >
+            {player.depth?.label ?? player.position}
           </span>
+          {player.depth?.starter && (
+            <span className="font-display text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-lime">
+              Starter
+            </span>
+          )}
         </span>
       </span>
 

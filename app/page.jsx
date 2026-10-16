@@ -18,6 +18,7 @@ import {
 import { saveGame, loadGame, clearGame } from "@/src/game/persistence"
 import { ROSTER_FORMAT, ROSTER_SLOT_ORDER } from "@/src/game/rosterFormat"
 import { getFilledSlotsCount } from "@/src/game/selectors"
+import { cn } from "@/lib/utils"
 import { BrandMark, BrandWordmark } from "@/src/components/brand/BrandMark"
 import { PhaseTracker } from "@/src/components/layout/PhaseTracker"
 
@@ -157,6 +158,7 @@ export default function HomePage() {
   }, [])
 
   const filledCount = getFilledSlotsCount(state)
+  const isComplete = state.phase === PHASES.COMPLETE
   const totalSlots = ROSTER_SLOT_ORDER.length
 
   return (
@@ -201,7 +203,8 @@ export default function HomePage() {
             </div>
 
             {/* Contextual selection */}
-            <div className="order-2 lg:order-3 lg:min-h-0">
+            {/* When the roster is complete, the celebration and New game lead on phones */}
+            <div className={cn("order-2 lg:order-3 lg:min-h-0", isComplete && "max-md:order-first")}>
               <SelectionPanel
                 state={state}
                 onSelectPosition={handleSelectPosition}

@@ -43,11 +43,20 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
 
   function handleSpin() {
     onSpin();
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const behavior = reduce ? "auto" : "smooth";
+
+    // The last pick completes the roster: jump to the top, where phones
+    // show the celebration and New game first.
+    if (finalPick) {
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
+
     // Bring the reel into view on small screens so the spin is visible.
     const node = panelRef.current;
     if (node && node.getBoundingClientRect().top < 0) {
-      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      node.scrollIntoView({ behavior, block: "start" });
     }
   }
 

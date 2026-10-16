@@ -4,6 +4,9 @@ import { forwardRef } from "react";
 import { ROSTER_SLOT_ORDER, ROSTER_FORMAT } from "@/src/game/rosterFormat";
 import { BrandMark } from "@/src/components/brand/BrandMark";
 import { PositionBadge } from "@/src/components/roster/RosterSlotRow";
+import { PlayerAvatar } from "@/src/components/roster/PlayerAvatar";
+
+const UNIT_SLOTS = new Set(["OL", "DEF"]);
 
 /**
  * Collectible-style card rendered off-screen and exported as a 1080px-wide
@@ -64,9 +67,11 @@ export const RosterExportCard = forwardRef(function RosterExportCard(
               style={{ backgroundColor: index % 2 === 0 ? "rgba(21,39,51,0.9)" : "rgba(15,28,38,0.9)" }}
             >
               <PositionBadge slotKey={slotKey} filled className="h-10 w-14 text-lg" />
+              <PlayerAvatar player={player} exportSafe className="h-11 w-11" />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[1.1875rem] font-bold leading-tight text-ink">
-                  {player?.name || config.fullLabel}
+                  {/* Units already carry the team name below, so use the slot name */}
+                  {UNIT_SLOTS.has(slotKey) ? config.fullLabel : player?.name || config.fullLabel}
                 </div>
                 <div className="truncate text-[0.8125rem] text-ink-muted">
                   {player?.team?.name || config.fullLabel}

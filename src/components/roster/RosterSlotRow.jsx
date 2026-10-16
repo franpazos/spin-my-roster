@@ -3,6 +3,7 @@
 import { Check, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ROSTER_FORMAT } from "@/src/game/rosterFormat"
+import { PlayerAvatar } from "./PlayerAvatar"
 
 // Position groups give each badge its own colour; text labels carry the state.
 const GROUP_STYLES = {
@@ -64,6 +65,7 @@ export function RosterSlotRow({ slotKey, player, isActive, isAvailable, onClick,
   const body = (
     <>
       <PositionBadge slotKey={slotKey} filled={isConfirmed || isStaged} className={cn(isStaged && "opacity-80")} />
+      {!isEmpty && <PlayerAvatar player={player} showTeamBadge />}
 
       <div className="min-w-0 flex-1">
         {isEmpty ? (
@@ -83,7 +85,17 @@ export function RosterSlotRow({ slotKey, player, isActive, isAvailable, onClick,
                 {player.team?.abbr}
               </span>
               <span aria-hidden="true">·</span>
-              <span className="truncate">{player.team?.name ?? config.fullLabel}</span>
+              {isStaged ? (
+                // Staged picks say so in the second line to leave room for the name.
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 font-display text-[0.6875rem] font-extrabold uppercase tracking-[0.12em] text-lime"
+                >
+                  Next pick
+                </span>
+              ) : (
+                <span className="truncate">{player.team?.name ?? config.fullLabel}</span>
+              )}
             </span>
           </>
         )}
@@ -91,18 +103,10 @@ export function RosterSlotRow({ slotKey, player, isActive, isAvailable, onClick,
 
       {/* Right rail: logo, state tag and affordance */}
       <div className="flex shrink-0 items-center gap-2">
-        {isStaged && (
-          <span aria-hidden="true" className="rounded border border-dashed border-lime/60 px-1.5 py-0.5 font-display text-[0.6875rem] font-extrabold uppercase leading-none tracking-[0.12em] text-lime">
-            Next pick
-          </span>
-        )}
         {isActive && (
           <span aria-hidden="true" className="rounded bg-lime px-1.5 py-0.5 font-display text-[0.6875rem] font-extrabold uppercase leading-none tracking-[0.12em] text-lime-ink">
             Picking
           </span>
-        )}
-        {!isEmpty && player.team?.logoUrl && (
-          <img src={player.team.logoUrl} alt="" className="h-8 w-8 object-contain" />
         )}
         {isConfirmed && <Check className="h-4 w-4 text-success" strokeWidth={3} aria-hidden="true" />}
         {isEmpty && isAvailable && (

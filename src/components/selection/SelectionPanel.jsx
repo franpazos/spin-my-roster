@@ -7,6 +7,7 @@ import { PlayerList } from "./PlayerList";
 import { RosterExportCard } from "../share/RosterExportCard";
 import { RosterShareBar } from "../share/RosterShareBar";
 import { PositionBadge } from "@/src/components/roster/RosterSlotRow";
+import { PlayerAvatar } from "@/src/components/roster/PlayerAvatar";
 import { PHASES } from "@/src/game/gameReducer";
 import { ROSTER_FORMAT, ROSTER_SLOT_ORDER } from "@/src/game/rosterFormat";
 import { getAvailableSlots, getFilledSlotsCount } from "@/src/game/selectors";
@@ -139,20 +140,8 @@ export function SelectionPanel({
             <RosterShareBar exportRef={exportRef} shareUrl={shareUrl} />
           </div>
 
-          <ul className="mt-4 grid grid-cols-1 gap-1 px-3 sm:grid-cols-2 md:grid-cols-1">
-            {ROSTER_SLOT_ORDER.map((slotKey) => {
-              const player = roster[slotKey];
-              return (
-                <li key={slotKey} className="flex items-center gap-2.5 rounded-lg bg-surface-3/50 p-1.5">
-                  <PositionBadge slotKey={slotKey} filled className="h-8 w-10 text-sm" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{player?.name}</span>
-                  <span className="pr-1.5 font-display text-sm font-bold text-ink-muted">{player?.team?.abbr}</span>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-auto p-4">
+          {/* Right under sharing so a new game is one tap away on phones */}
+          <div className="px-4 pt-2">
             <button
               type="button"
               onClick={onReset}
@@ -162,6 +151,21 @@ export function SelectionPanel({
               New game
             </button>
           </div>
+
+          <ul className="mt-4 grid grid-cols-1 gap-1 px-3 pb-4 sm:grid-cols-2 md:grid-cols-1">
+            {ROSTER_SLOT_ORDER.map((slotKey) => {
+              const player = roster[slotKey];
+              return (
+                <li key={slotKey} className="flex items-center gap-2.5 rounded-lg bg-surface-3/50 p-1.5">
+                  <PositionBadge slotKey={slotKey} filled className="h-8 w-10 text-sm" />
+                  <PlayerAvatar player={player} className="h-8 w-8" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{player?.name}</span>
+                  <span className="pr-1.5 font-display text-sm font-bold text-ink-muted">{player?.team?.abbr}</span>
+                </li>
+              );
+            })}
+          </ul>
+
         </div>
 
         {/* Off-screen card used to render the shareable PNG */}
@@ -285,16 +289,14 @@ function StagedPickView({ stagedPick, state, onUndo }) {
       <div className="flex flex-1 flex-col justify-center p-4 sm:p-5">
         <div className="animate-rise-in rounded-xl border border-dashed border-lime/50 bg-lime/[0.06] p-4">
           <div className="flex items-center gap-3">
-            <PositionBadge slotKey={slotKey} filled />
+            <PlayerAvatar player={player} showTeamBadge className="h-16 w-16" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-lg font-semibold leading-tight text-ink">{player?.name}</p>
-              <p className="truncate text-sm text-ink-muted">
+              <PositionBadge slotKey={slotKey} filled className="h-7 w-10 text-sm" />
+              <p className="mt-1.5 text-lg font-semibold leading-tight text-ink">{player?.name}</p>
+              <p className="text-sm text-ink-muted">
                 {config.fullLabel} · {player?.team?.name}
               </p>
             </div>
-            {player?.team?.logoUrl && (
-              <img src={player.team.logoUrl} alt="" className="h-10 w-10 shrink-0 object-contain" />
-            )}
           </div>
         </div>
 
