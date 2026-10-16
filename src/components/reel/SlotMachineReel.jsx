@@ -149,7 +149,7 @@ export function SlotMachineReel({
   return (
     <div
       className={cn(
-        "relative [--reel-item:5.25rem] sm:[--reel-item:6rem]",
+        "relative [--reel-item:5.25rem] sm:[--reel-item:6rem] [@media(max-height:700px)]:[--reel-item:4.5rem]",
         "h-[calc(var(--reel-item)*3)] overflow-hidden rounded-lg",
       )}
     >

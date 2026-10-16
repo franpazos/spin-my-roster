@@ -9,8 +9,9 @@ export function BrandMark({ className, title = "Spin My Roster" }) {
     <svg
       viewBox="0 0 48 48"
       className={cn("h-10 w-10", className)}
-      role="img"
-      aria-label={title}
+      role={title ? "img" : undefined}
+      aria-label={title || undefined}
+      aria-hidden={title ? undefined : true}
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect width="48" height="48" rx="12" fill="#0f1c26" />
