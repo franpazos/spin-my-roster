@@ -78,8 +78,8 @@ export function RosterShareBar({
   function handleCopy() {
     return run("copy", async () => {
       try {
-        const blob = await buildBlob();
-        await copyBlobToClipboard(blob);
+        // Start the clipboard write right away, inside the click gesture.
+        await copyBlobToClipboard(buildBlob());
         toast.success("Lineup image copied");
       } catch (e) {
         console.error("[share] Copy failed:", e);
