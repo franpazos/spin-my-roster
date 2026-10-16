@@ -4,12 +4,20 @@ import type { Metadata, Viewport } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-import { Geist_Mono, Inter as V0_Font_Inter, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
+import { Barlow_Condensed, Inter } from "next/font/google"
 
-// Initialize fonts
-const _inter = V0_Font_Inter({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const barlow = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-barlow",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "Spin My Roster | NFL Fantasy Team Builder",
@@ -36,7 +44,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#09090b",
+  themeColor: "#060a0f",
+  colorScheme: "dark",
 }
 
 export default function RootLayout({
@@ -45,8 +54,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="font-sans antialiased bg-zinc-950">
+    <html lang="en" className={`dark ${inter.variable} ${barlow.variable}`}>
+      <body>
         {children}
         <Analytics />
       </body>

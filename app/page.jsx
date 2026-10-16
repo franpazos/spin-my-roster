@@ -156,32 +156,32 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="flex min-h-dvh flex-col lg:h-dvh">
       {/* Header */}
-      <header className="border-b border-zinc-800 px-4 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="h-[var(--header-h)] shrink-0 border-b border-line px-4">
+        <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center font-bold text-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime font-display text-lg font-bold text-lime-ink">
               S
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">Spin My Roster</h1>
-              <p className="text-xs text-zinc-500">Build your dream team</p>
+              <h1 className="font-display text-lg font-bold uppercase text-ink">Spin My Roster</h1>
+              <p className="text-xs text-ink-muted">Build your dream team</p>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto p-4">
+      <main className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col p-4 lg:min-h-0">
         {teamsLoading ? (
-          <div className="flex items-center justify-center h-[calc(100vh-120px)]">
-            <div className="text-zinc-500">Loading teams...</div>
+          <div className="flex flex-1 items-center justify-center">
+            <div className="text-ink-muted">Loading teams...</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-120px)]">
+          <div className="grid flex-1 grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-3">
             {/* Left: Roster Panel */}
-            <div className="lg:col-span-1 min-h-[400px] lg:min-h-0">
+            <div className="lg:min-h-0">
               <RosterPanel
                 state={state}
                 onSelectPosition={handleSelectPosition}
@@ -191,12 +191,12 @@ export default function HomePage() {
             </div>
 
             {/* Center: Reel Panel */}
-            <div className="lg:col-span-1 min-h-[400px] lg:min-h-0">
+            <div className="lg:min-h-0">
               <ReelPanel state={state} teams={teams} onSpin={handleSpin} onSpinComplete={handleSpinComplete} />
             </div>
 
             {/* Right: Selection Panel */}
-            <div className="lg:col-span-1 min-h-[400px] lg:min-h-0">
+            <div className="lg:min-h-0">
               <SelectionPanel
                 state={state}
                 onSelectPosition={handleSelectPosition}
