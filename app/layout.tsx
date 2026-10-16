@@ -20,31 +20,54 @@ const barlow = Barlow_Condensed({
   display: "swap",
 })
 
+const DESCRIPTION =
+  "Build your dream NFL roster by spinning for random teams and selecting players. A fun slot machine game for football fans."
+
+// Absolute base for Open Graph URLs: explicit env, Vercel production URL, or local dev.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3002")
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Spin My Roster | NFL Fantasy Team Builder",
-  description:
-    "Build your dream NFL roster by spinning for random teams and selecting players. A fun slot machine game for football fans.",
+  description: DESCRIPTION,
+  applicationName: "Spin My Roster",
   generator: "Fran",
+  appleWebApp: {
+    capable: true,
+    title: "Spin Roster",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
+  openGraph: {
+    type: "website",
+    siteName: "Spin My Roster",
+    title: "Spin My Roster",
+    description: DESCRIPTION,
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "Spin My Roster" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Spin My Roster",
+    description: DESCRIPTION,
+    images: ["/icons/icon-512.png"],
+  },
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
     ],
-    apple: "/apple-icon.png",
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
 }
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#060a0f",
   colorScheme: "dark",
 }
