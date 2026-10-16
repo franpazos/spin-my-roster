@@ -207,6 +207,7 @@ export default function HomePage() {
                 onSelectPosition={handleSelectPosition}
                 onSelectPlayer={handleSelectPlayer}
                 onBack={handleBack}
+                onUndo={handleUndo}
                 onReset={handleReset}
               />
             </div>
