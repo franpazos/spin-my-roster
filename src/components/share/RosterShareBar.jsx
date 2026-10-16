@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Copy, Download, Loader2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   nodeToPngBlob,
@@ -17,9 +18,14 @@ export function RosterShareBar({
   fileName = "spin-my-roster.png",
   shareUrl,
 }) {
-  const [busy, setBusy] = useState(false);
-  const shareSupported = useMemo(() => canShareFiles(), []);
-  const copySupported = useMemo(() => canCopyImageToClipboard(), []);
+  // Which action is generating an image: "save" | "copy" | "share" | null.
+  const [busy, setBusy] = useState(null);
+  // Feature checks run after mount so server and client markup match.
+  const [support, setSupport] = useState({ share: false, copy: false });
+
+  useEffect(() => {
+    setSupport({ share: canShareFiles(), copy: canCopyImageToClipboard() });
+  }, []);
 
   async function buildBlob() {
     const node = exportRef?.current;
@@ -27,89 +33,105 @@ export function RosterShareBar({
     return await nodeToPngBlob(node);
   }
 
-  async function handleSave() {
+  async function run(action, task) {
+    if (busy) return;
+    setBusy(action);
     try {
-      setBusy(true);
-      const blob = await buildBlob();
-      downloadBlob(blob, fileName);
-    } catch (e) {
-      console.error("[share] Save failed:", e);
-      alert("Could not generate image. Try again.");
+      await task();
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
-  async function handleShare() {
-    try {
-      setBusy(true);
-      const blob = await buildBlob();
-
-      await shareBlobAsFile({
-        blob,
-        fileName,
-        title: "Spin My Roster",
-        text: shareUrl ? `Try it here: ${shareUrl}` : "Spin My Roster",
-      });
-    } catch (e) {
-      console.error("[share] Share failed:", e);
-      // Friendly fallback
-      alert("Sharing isn’t supported here. Use Save Image instead.");
-    } finally {
-      setBusy(false);
-    }
+  function handleSave() {
+    return run("save", async () => {
+      try {
+        const blob = await buildBlob();
+        downloadBlob(blob, fileName);
+        toast.success("Lineup image saved");
+      } catch (e) {
+        console.error("[share] Save failed:", e);
+        toast.error("Could not generate the image. Try again.");
+      }
+    });
   }
 
-  async function handleCopy() {
-    try {
-      setBusy(true);
-      const blob = await buildBlob();
-      await copyBlobToClipboard(blob);
-      alert("Copied to clipboard ✅");
-    } catch (e) {
-      console.error("[share] Copy failed:", e);
-      alert("Copy isn’t supported here. Use Save Image instead.");
-    } finally {
-      setBusy(false);
-    }
+  function handleShare() {
+    return run("share", async () => {
+      try {
+        const blob = await buildBlob();
+        await shareBlobAsFile({
+          blob,
+          fileName,
+          title: "Spin My Roster",
+          text: shareUrl ? `Try it here: ${shareUrl}` : "Spin My Roster",
+        });
+      } catch (e) {
+        // The user closed the share sheet: not an error.
+        if (e?.name === "AbortError") return;
+        console.error("[share] Share failed:", e);
+        toast.error("Sharing isn’t supported here. Use Save image instead.");
+      }
+    });
   }
+
+  function handleCopy() {
+    return run("copy", async () => {
+      try {
+        const blob = await buildBlob();
+        await copyBlobToClipboard(blob);
+        toast.success("Lineup image copied");
+      } catch (e) {
+        console.error("[share] Copy failed:", e);
+        toast.error("Copy isn’t supported here. Use Save image instead.");
+      }
+    });
+  }
+
+  const secondary =
+    "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-line-strong bg-surface-3 px-3 text-sm font-semibold text-ink transition-colors hover:bg-surface-4 disabled:cursor-not-allowed disabled:opacity-60";
 
   return (
-    <div className="w-full max-w-sm flex gap-2">
-      <Button
-        type="button"
-        onClick={handleSave}
-        disabled={busy}
-        className={cn("flex-1 bg-zinc-800 hover:bg-zinc-700 text-white")}
-      >
-        {busy ? "Generating..." : "Save Image"}
-      </Button>
-
-      <Button
-        type="button"
-        onClick={handleCopy}
-        disabled={busy}
-        className={cn("bg-zinc-800 hover:bg-zinc-700 text-white")}
-        title={
-          !copySupported ? "Copy not supported in this browser." : undefined
-        }
-      >
-        {busy ? "Generating..." : "Copy"}
-      </Button>
-
-      <Button
+    <div className="w-full space-y-2" aria-busy={Boolean(busy) || undefined}>
+      <button
         type="button"
         onClick={handleShare}
-        disabled={busy || !shareSupported}
-        className={cn("flex-1 bg-emerald-600 hover:bg-emerald-500 text-white")}
-        title={
-          !shareSupported
-            ? "Sharing not supported in this browser. Use Save Image."
-            : undefined
-        }
+        disabled={Boolean(busy) || !support.share}
+        title={!support.share ? "Sharing not supported in this browser. Use Save image." : undefined}
+        className={cn(
+          "inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-xl font-display text-xl font-extrabold uppercase tracking-[0.08em] transition-[transform,background-color] duration-150",
+          "bg-lime text-lime-ink shadow-accent hover:-translate-y-0.5 hover:bg-lime-strong active:translate-y-px",
+          "disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-ink-muted disabled:shadow-none",
+        )}
       >
-        {busy ? "Generating..." : "Share"}
-      </Button>
+        <ActionIcon busy={busy === "share"} icon={Share2} />
+        {busy === "share" ? "Preparing…" : "Share lineup"}
+      </button>
+      {!support.share && (
+        <p className="text-center text-xs text-ink-muted">Sharing isn’t available in this browser — save or copy the image.</p>
+      )}
+
+      <div className="flex gap-2">
+        <button type="button" onClick={handleSave} disabled={Boolean(busy)} className={secondary}>
+          <ActionIcon busy={busy === "save"} icon={Download} />
+          {busy === "save" ? "Generating…" : "Save image"}
+        </button>
+        <button
+          type="button"
+          onClick={handleCopy}
+          disabled={Boolean(busy)}
+          title={!support.copy ? "Copy not supported in this browser." : undefined}
+          className={secondary}
+        >
+          <ActionIcon busy={busy === "copy"} icon={Copy} />
+          {busy === "copy" ? "Generating…" : "Copy"}
+        </button>
+      </div>
     </div>
   );
+}
+
+function ActionIcon({ busy, icon: Icon }) {
+  const Component = busy ? Loader2 : Icon;
+  return <Component className={cn("h-4 w-4 shrink-0", busy && "animate-spin")} aria-hidden="true" />;
 }

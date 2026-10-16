@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 
 import { Analytics } from "@vercel/analytics/next"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 import { Barlow_Condensed, Inter } from "next/font/google"
@@ -57,6 +58,17 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable} ${barlow.variable}`}>
       <body>
         {children}
+        <Toaster
+          theme="dark"
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: "var(--surface-3)",
+              border: "1px solid var(--line-strong)",
+              color: "var(--smr-text)",
+            },
+          }}
+        />
         <Analytics />
       </body>
     </html>

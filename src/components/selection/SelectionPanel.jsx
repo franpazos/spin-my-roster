@@ -139,7 +139,7 @@ export function SelectionPanel({
             <RosterShareBar exportRef={exportRef} shareUrl={shareUrl} />
           </div>
 
-          <ul className="mt-4 grid grid-cols-1 gap-1 px-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
+          <ul className="mt-4 grid grid-cols-1 gap-1 px-3 sm:grid-cols-2 md:grid-cols-1">
             {ROSTER_SLOT_ORDER.map((slotKey) => {
               const player = roster[slotKey];
               return (

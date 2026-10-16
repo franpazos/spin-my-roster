@@ -5,7 +5,7 @@ import { Panel } from "@/src/components/layout/Panel";
 import { SlotMachineReel } from "./SlotMachineReel";
 import { SpinButton } from "./SpinButton";
 import { PHASES } from "@/src/game/gameReducer";
-import { ROSTER_FORMAT } from "@/src/game/rosterFormat";
+import { ROSTER_FORMAT, ROSTER_SLOT_ORDER } from "@/src/game/rosterFormat";
 import {
   canSpin,
   isRosterComplete,
@@ -84,12 +84,16 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
         <div className="relative w-full max-w-md">
           <ReelRails />
           <div className="rounded-2xl border border-line bg-surface-0/70 p-1.5 shadow-[inset_0_2px_12px_rgb(0_0_0_/_0.6)]">
-            <SlotMachineReel
-              teams={availableTeams}
-              isSpinning={isSpinning}
-              onSpinComplete={onSpinComplete}
-              lockedTeam={state.currentTeam}
-            />
+            {complete ? (
+              <DraftedTeams roster={state.roster} />
+            ) : (
+              <SlotMachineReel
+                teams={availableTeams}
+                isSpinning={isSpinning}
+                onSpinComplete={onSpinComplete}
+                lockedTeam={state.currentTeam}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -146,6 +150,29 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
         </div>
       </div>
     </Panel>
+  );
+}
+
+// Final board: the eight teams drafted, in lineup order.
+function DraftedTeams({ roster }) {
+  return (
+    <ul className="grid grid-cols-4 gap-1.5 p-2" aria-label="Teams drafted">
+      {ROSTER_SLOT_ORDER.map((slotKey) => {
+        const team = roster[slotKey]?.team;
+        return (
+          <li
+            key={slotKey}
+            className="flex animate-pop-in flex-col items-center gap-1 rounded-lg bg-surface-2 px-1 py-2.5"
+          >
+            {team?.logoUrl && <img src={team.logoUrl} alt="" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />}
+            <span className="font-display text-sm font-bold uppercase leading-none text-ink">{team?.abbr}</span>
+            <span className="font-display text-xs font-bold uppercase leading-none text-lime">
+              {ROSTER_FORMAT[slotKey].label}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

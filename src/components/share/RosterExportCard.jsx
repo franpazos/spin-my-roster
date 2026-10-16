@@ -2,53 +2,87 @@
 
 import { forwardRef } from "react";
 import { ROSTER_SLOT_ORDER, ROSTER_FORMAT } from "@/src/game/rosterFormat";
+import { BrandMark } from "@/src/components/brand/BrandMark";
+import { PositionBadge } from "@/src/components/roster/RosterSlotRow";
 
+/**
+ * Collectible-style card rendered off-screen and exported as a 1080px-wide
+ * PNG (540px × pixelRatio 2). Everything is self-contained so the capture
+ * does not depend on page layout.
+ */
 export const RosterExportCard = forwardRef(function RosterExportCard(
   { roster, shareUrl, title = "Spin My Roster" },
   ref
 ) {
+  const filled = ROSTER_SLOT_ORDER.filter((key) => roster?.[key]).length;
+  const displayUrl = (shareUrl || "").replace(/^https?:\/\//, "");
+
   return (
     <div
       ref={ref}
-      className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 w-full max-w-sm"
+      className="relative w-[540px] overflow-hidden rounded-[28px] p-7 font-sans text-ink"
+      style={{
+        backgroundColor: "#060a0f",
+        backgroundImage: [
+          "radial-gradient(90% 45% at 50% 0%, rgba(138,220,255,0.18), transparent 70%)",
+          "radial-gradient(70% 35% at 100% 100%, rgba(200,241,53,0.14), transparent 70%)",
+          "repeating-linear-gradient(90deg, transparent 0 53px, rgba(156,196,220,0.05) 53px 54px)",
+        ].join(","),
+        boxShadow: "inset 0 0 0 1px rgba(156,196,220,0.22)",
+      }}
     >
-      {/* Title */}
-      <div className="text-center mb-4">
-        <h3 className="text-xl font-extrabold tracking-tight text-white">
-          {title}
-        </h3>
+      {/* Brand header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <BrandMark className="h-10 w-10" title="" />
+          <span className="font-display text-2xl font-extrabold uppercase leading-none tracking-wide">
+            {title.replace(/Roster$/i, "")}
+            <span className="text-lime">Roster</span>
+          </span>
+        </div>
+        <span className="rounded-md bg-lime px-2.5 py-1.5 font-display text-sm font-extrabold uppercase leading-none tracking-[0.1em] text-lime-ink">
+          {filled}/{ROSTER_SLOT_ORDER.length} roster complete
+        </span>
       </div>
 
+      <h3 className="mt-6 font-display text-[3.25rem] font-extrabold uppercase leading-[0.9] tracking-wide">
+        My starting
+        <br />
+        <span className="text-lime">lineup</span>
+      </h3>
+
       {/* Slots */}
-      <div className="space-y-2">
-        {ROSTER_SLOT_ORDER.map((slotKey) => {
+      <div className="mt-6 space-y-1.5">
+        {ROSTER_SLOT_ORDER.map((slotKey, index) => {
           const config = ROSTER_FORMAT[slotKey];
           const player = roster?.[slotKey];
 
           return (
             <div
               key={slotKey}
-              className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/40 px-3 py-2"
+              className="flex items-center gap-3.5 rounded-xl px-3 py-2"
+              style={{ backgroundColor: index % 2 === 0 ? "rgba(21,39,51,0.9)" : "rgba(15,28,38,0.9)" }}
             >
-              <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {config.label}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white truncate">
+              <PositionBadge slotKey={slotKey} filled className="h-10 w-14 text-lg" />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[1.1875rem] font-bold leading-tight text-ink">
                   {player?.name || config.fullLabel}
                 </div>
-                <div className="text-xs text-zinc-400 truncate">
-                  {player?.team?.abbr ? `${player.team.abbr} • ` : ""}
-                  {player?.position || config.label}
+                <div className="truncate text-[0.8125rem] text-ink-muted">
+                  {player?.team?.name || config.fullLabel}
                 </div>
               </div>
-
+              {player?.team?.abbr && (
+                <span className="font-display text-2xl font-extrabold leading-none tracking-wide text-ink">
+                  {player.team.abbr}
+                </span>
+              )}
               {player?.team?.logoUrl && (
                 <img
                   src={player.team.logoUrl}
-                  alt={player.team.abbr}
-                  className="w-8 h-8 object-contain opacity-80"
+                  alt=""
+                  crossOrigin="anonymous"
+                  className="h-10 w-10 object-contain"
                 />
               )}
             </div>
@@ -56,9 +90,15 @@ export const RosterExportCard = forwardRef(function RosterExportCard(
         })}
       </div>
 
-      {/* Footer URL */}
-      <div className="mt-4 pt-3 border-t border-zinc-800 text-center">
-        <p className="text-[11px] text-zinc-500">{shareUrl}</p>
+      {/* Footer */}
+      <div
+        className="mt-6 flex items-center justify-between border-t pt-4"
+        style={{ borderColor: "rgba(156,196,220,0.2)" }}
+      >
+        <span className="font-display text-sm font-bold uppercase tracking-[0.14em] text-ink-muted">
+          Spin yours
+        </span>
+        <span className="font-display text-xl font-extrabold tracking-wide text-ice">{displayUrl}</span>
       </div>
     </div>
   );
