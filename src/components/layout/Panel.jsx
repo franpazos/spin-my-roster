@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 const VARIANTS = {
   // Standard side panel.
-  default: "bg-surface-2/85 border border-line shadow-panel",
+  default: "bg-surface-2/90 border border-line shadow-panel",
   // The reel stage: deeper, framed, slightly brighter rim.
   stage:
     "bg-[linear-gradient(180deg,var(--surface-3)_0%,var(--surface-1)_100%)] border border-line-strong shadow-panel",
@@ -12,6 +12,8 @@ const VARIANTS = {
 
 /**
  * Panel — the base container for each game area.
+ * No backdrop-filter or transform here: phones dock fixed controls from
+ * inside panels, and those properties would trap `position: fixed`.
  *
  * `title` renders a scoreboard-style eyebrow, `description` a short helper
  * line and `actions` sits on the right of the header. Pass `header` to replace
@@ -32,7 +34,7 @@ export function Panel({
 
   return (
     <Component
-      className={cn("relative flex flex-col overflow-hidden rounded-xl backdrop-blur-sm", VARIANTS[variant], className)}
+      className={cn("relative flex flex-col rounded-xl md:overflow-hidden", VARIANTS[variant], className)}
       {...props}
     >
       {hasHeader &&

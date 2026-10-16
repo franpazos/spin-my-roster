@@ -190,7 +190,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-3 sm:p-4 lg:min-h-0 lg:px-6">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-3 max-md:pb-28 sm:p-4 sm:max-md:pb-28 lg:min-h-0 lg:px-6">
         {teamsLoading ? (
           <LoadingStage />
         ) : (
