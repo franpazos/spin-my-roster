@@ -1,18 +1,28 @@
 import { fetchESPN } from "@/src/data/espn/espnClient"
 import { ENDPOINTS } from "@/src/data/espn/endpoints"
 import { normalizeRoster } from "@/src/data/espn/normalizeRoster"
-import { normalizeDepthChart } from "@/src/data/espn/normalizeDepthChart"
+import {
+  getDepthAthleteIds,
+  normalizeDepthChart,
+  parseOffenseDepth,
+} from "@/src/data/espn/normalizeDepthChart"
+import { fetchFantasyRanks } from "@/src/data/espn/fantasyRanks"
 import { getFromCache, setInCache, CACHE_TTL } from "@/src/data/espn/cache"
 
-// Depth chart lookup for a team. Optional: on failure the roster keeps its
-// default order, so a depth chart outage never blocks the game.
+// Depth chart lookup for a team. Injured players are moved back up using
+// fantasy draft position, ADP (injuries do not matter in this game). Both sources
+// are optional: without ranks ESPN's order is kept, and without a depth chart
+// the roster keeps its default order, so neither outage blocks the game.
 async function getDepthChart(teamId) {
   const cacheKey = `depth-${teamId}`
   const cached = getFromCache(cacheKey)
   if (cached) return cached
 
   try {
-    const depth = normalizeDepthChart(await fetchESPN(ENDPOINTS.teamDepthChart(teamId)))
+    const parsed = parseOffenseDepth(await fetchESPN(ENDPOINTS.teamDepthChart(teamId)))
+    const hasInjured = [...(parsed?.positions.values() ?? [])].some(({ order }) => order.some((a) => a.injured))
+    const ranks = hasInjured ? await fetchFantasyRanks(getDepthAthleteIds(parsed), parsed.season) : {}
+    const depth = normalizeDepthChart(parsed, ranks)
     setInCache(cacheKey, depth, CACHE_TTL.DEPTH_CHART)
     return depth
   } catch (error) {

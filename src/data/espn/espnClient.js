@@ -1,9 +1,10 @@
 // Fetch wrapper with error handling for ESPN API
-export async function fetchESPN(url) {
+export async function fetchESPN(url, { headers = {} } = {}) {
   try {
     const response = await fetch(url, {
       headers: {
         Accept: "application/json",
+        ...headers,
       },
       next: { revalidate: 3600 }, // Cache for 1 hour at fetch level
     })
