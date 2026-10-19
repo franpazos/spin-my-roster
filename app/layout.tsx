@@ -84,6 +84,9 @@ export default function RootLayout({
         <Toaster
           theme="dark"
           position="top-center"
+          // Below the status bar / Dynamic Island when installed on a phone
+          offset={{ top: "calc(var(--safe-top) + 1rem)" }}
+          mobileOffset={{ top: "calc(var(--safe-top) + 0.75rem)" }}
           toastOptions={{
             style: {
               background: "var(--surface-3)",

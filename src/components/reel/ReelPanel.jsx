@@ -72,7 +72,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
     <Panel
       ref={panelRef}
       variant="stage"
-      className="h-full scroll-mt-3"
+      className="h-full scroll-mt-[calc(var(--safe-top)+0.75rem)]"
       aria-label="Team reel"
       header={
         <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
@@ -143,7 +143,7 @@ export function ReelPanel({ state, teams, onSpin, onSpinComplete }) {
             // While the player is choosing, the picker sits right below on phones.
             !docked && !complete && "max-md:hidden",
             docked &&
-              "max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-40 max-md:mt-0 max-md:border-t max-md:border-line max-md:bg-surface-0/90 max-md:px-3 max-md:pt-3 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-md:backdrop-blur-md",
+              "max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-40 max-md:mt-0 max-md:border-t max-md:border-line max-md:bg-surface-0/90 max-md:pl-[max(0.75rem,var(--safe-left))] max-md:pr-[max(0.75rem,var(--safe-right))] max-md:pt-3 max-md:pb-[max(0.75rem,var(--safe-bottom))] max-md:backdrop-blur-md",
           )}
         >
           <SpinButton

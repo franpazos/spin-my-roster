@@ -51,6 +51,16 @@
 
   /* Layout */
   --header-h: 3.75rem;
+  /*
+   * Safe areas (notch / Dynamic Island, status bar, home indicator). The app
+   * draws edge to edge (viewport-fit=cover, black-translucent status bar), so
+   * anything touching a screen edge must pad by these. Kept as variables so
+   * they can be overridden to simulate a device while testing.
+   */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
   --radius: 0.875rem;
 
   /* shadcn/ui contract, mapped onto the brand */

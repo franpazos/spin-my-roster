@@ -165,8 +165,14 @@ export default function HomePage() {
   const totalSlots = ROSTER_SLOT_ORDER.length
 
   return (
-    <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <header className="shrink-0 border-b border-line bg-surface-0/70 backdrop-blur-md">
+    <div className="flex min-h-dvh flex-col pl-[var(--safe-left)] pr-[var(--safe-right)] lg:h-dvh">
+      {/* Solid strip behind the status bar so scrolled content never runs under the clock and battery */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 h-[var(--safe-top)] bg-surface-0"
+      />
+      {/* Top padding keeps the brand and counter clear of the status bar and notch */}
+      <header className="shrink-0 border-b border-line bg-surface-0/70 pt-[var(--safe-top)] backdrop-blur-md">
         <div className="mx-auto flex h-[var(--header-h)] max-w-[1440px] items-center gap-4 px-4 lg:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
             <BrandMark className="h-9 w-9 shrink-0" title="" />
@@ -195,7 +201,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-3 max-md:pb-28 sm:p-4 sm:max-md:pb-28 lg:min-h-0 lg:px-6">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-3 max-md:pb-[calc(8rem+var(--safe-bottom))] sm:p-4 sm:max-md:pb-[calc(8rem+var(--safe-bottom))] lg:min-h-0 lg:px-6">
         {teamsLoading ? (
           <LoadingStage />
         ) : (
