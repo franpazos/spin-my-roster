@@ -5,6 +5,7 @@ import { ROSTER_SLOT_ORDER, ROSTER_FORMAT } from "@/src/game/rosterFormat";
 import { BrandMark } from "@/src/components/brand/BrandMark";
 import { PositionBadge } from "@/src/components/roster/RosterSlotRow";
 import { PlayerAvatar } from "@/src/components/roster/PlayerAvatar";
+import { DraftOrderStrip, PickTag, getDraftOrder } from "./DraftOrder";
 
 const UNIT_SLOTS = new Set(["OL", "DEF"]);
 
@@ -19,6 +20,7 @@ export const RosterExportCard = forwardRef(function RosterExportCard(
 ) {
   const filled = ROSTER_SLOT_ORDER.filter((key) => roster?.[key]).length;
   const displayUrl = (shareUrl || "").replace(/^https?:\/\//, "");
+  const draftOrder = getDraftOrder(roster);
 
   return (
     <div
@@ -55,7 +57,7 @@ export const RosterExportCard = forwardRef(function RosterExportCard(
       </h3>
 
       {/* Slots */}
-      <div className="mt-6 space-y-1.5">
+      <div className="@container mt-6 space-y-1.5">
         {ROSTER_SLOT_ORDER.map((slotKey, index) => {
           const config = ROSTER_FORMAT[slotKey];
           const player = roster?.[slotKey];
@@ -90,10 +92,21 @@ export const RosterExportCard = forwardRef(function RosterExportCard(
                   className="h-10 w-10 object-contain"
                 />
               )}
+              <PickTag number={player?.pickNumber} className="ml-0.5" />
             </div>
           );
         })}
       </div>
+
+      {/* Draft order: the sequence that explains each choice */}
+      {draftOrder.length > 0 && (
+        <div className="mt-6">
+          <div className="mb-2 font-display text-sm font-bold uppercase tracking-[0.14em] text-ink-muted">
+            Draft order
+          </div>
+          <DraftOrderStrip picks={draftOrder} layout="card" exportSafe />
+        </div>
+      )}
 
       {/* Footer */}
       <div

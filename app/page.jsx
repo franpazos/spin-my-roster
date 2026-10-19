@@ -72,9 +72,15 @@ export default function HomePage() {
     dispatch(setCurrentTeam(team))
   }, [])
 
+  // Draft order: the pick number travels with the player into the roster, so
+  // it is persisted with the game. Locked slots + 1, because the staged pick
+  // is not in the roster yet. Undoing a staged pick frees its number.
+  const nextPickNumber = getFilledSlotsCount(state) + 1
+
   const handleSelectPosition = useCallback(
     async (slotKey) => {
       const slotConfig = ROSTER_FORMAT[slotKey]
+      const commitPick = (player) => dispatch(commitSelection({ ...player, pickNumber: nextPickNumber }))
 
       // If this slot auto-commits (DEF or HC), handle it directly
       if (slotConfig?.autoCommit) {
@@ -87,14 +93,14 @@ export default function HomePage() {
             name: `${state.currentTeam.name} Defense`,
             position: "DEF",
           }
-          dispatch(commitSelection(defensePlayer))
+          commitPick(defensePlayer)
         } else if (slotKey === "OL") {
           const OLUnit = {
             id: `ol-${state.currentTeam.id}`,
             name: `${state.currentTeam.name} Offensive Line`,
             position: "OL",
           }
-          dispatch(commitSelection(OLUnit))
+          commitPick(OLUnit)
         } else if (slotKey === "HC") {
           try {
             const res = await fetch(`/api/head-coaches?teamId=${state.currentTeam.id}`)
@@ -102,34 +108,28 @@ export default function HomePage() {
             const data = await res.json()
 
             if (data.coach) {
-              dispatch(
-                commitSelection({
-                  id: data.coach.id || `hc-${state.currentTeam.id}`,
-                  name: data.coach.name,
-                  position: "HC",
-                  headshotUrl: data.coach.headshotUrl || null,
-                }),
-              )
+              commitPick({
+                id: data.coach.id || `hc-${state.currentTeam.id}`,
+                name: data.coach.name,
+                position: "HC",
+                headshotUrl: data.coach.headshotUrl || null,
+              })
             } else {
               // Fallback if coach not found
-              dispatch(
-                commitSelection({
-                  id: `hc-${state.currentTeam.id}`,
-                  name: `${state.currentTeam.abbr} Head Coach`,
-                  position: "HC",
-                }),
-              )
+              commitPick({
+              id: `hc-${state.currentTeam.id}`,
+              name: `${state.currentTeam.abbr} Head Coach`,
+              position: "HC",
+            })
             }
           } catch (e) {
             console.error("[v0] Failed to fetch coach:", e)
             // Fallback on error
-            dispatch(
-              commitSelection({
-                id: `hc-${state.currentTeam.id}`,
-                name: `${state.currentTeam.abbr} Head Coach`,
-                position: "HC",
-              }),
-            )
+            commitPick({
+              id: `hc-${state.currentTeam.id}`,
+              name: `${state.currentTeam.abbr} Head Coach`,
+              position: "HC",
+            })
           }
         }
       } else {
@@ -137,12 +137,15 @@ export default function HomePage() {
         dispatch(selectPosition(slotKey))
       }
     },
-    [state.currentTeam],
+    [state.currentTeam, nextPickNumber],
   )
 
-  const handleSelectPlayer = useCallback((player) => {
-    dispatch(commitSelection(player))
-  }, [])
+  const handleSelectPlayer = useCallback(
+    (player) => {
+      dispatch(commitSelection({ ...player, pickNumber: nextPickNumber }))
+    },
+    [nextPickNumber],
+  )
 
   const handleBack = useCallback(() => {
     dispatch(goBack())

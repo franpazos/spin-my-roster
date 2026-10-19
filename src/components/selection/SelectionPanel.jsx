@@ -6,6 +6,7 @@ import { PositionPicker } from "./PositionPicker";
 import { PlayerList } from "./PlayerList";
 import { RosterExportCard } from "../share/RosterExportCard";
 import { RosterShareBar } from "../share/RosterShareBar";
+import { DraftOrderStrip, PickTag, getDraftOrder } from "../share/DraftOrder";
 import { PositionBadge } from "@/src/components/roster/RosterSlotRow";
 import { PlayerAvatar } from "@/src/components/roster/PlayerAvatar";
 import { PHASES } from "@/src/game/gameReducer";
@@ -115,6 +116,7 @@ export function SelectionPanel({
 
   if (phase === PHASES.COMPLETE) {
     const shareUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const draftOrder = getDraftOrder(roster);
 
     return (
       <Panel className="h-full" aria-label="Roster complete">
@@ -152,15 +154,30 @@ export function SelectionPanel({
             </button>
           </div>
 
-          <ul className="mt-4 grid grid-cols-1 gap-1 px-3 pb-4 sm:grid-cols-2 md:grid-cols-1">
+          {/* How the roster was built, pick by pick */}
+          {draftOrder.length > 0 && (
+            <section className="@container mt-5 px-3" aria-labelledby="draft-order-title">
+              <h3 id="draft-order-title" className="eyebrow mb-2 px-1">
+                Draft order
+              </h3>
+              <DraftOrderStrip picks={draftOrder} />
+            </section>
+          )}
+
+          <h3 className="eyebrow mt-5 px-4">Lineup</h3>
+          <ul className="@container mt-2 grid grid-cols-1 gap-1 px-3 pb-4 sm:grid-cols-2 md:grid-cols-1">
             {ROSTER_SLOT_ORDER.map((slotKey) => {
               const player = roster[slotKey];
               return (
                 <li key={slotKey} className="flex items-center gap-2.5 rounded-lg bg-surface-3/50 p-1.5">
                   <PositionBadge slotKey={slotKey} filled className="h-8 w-10 text-sm" />
                   <PlayerAvatar player={player} className="h-8 w-8" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{player?.name}</span>
-                  <span className="pr-1.5 font-display text-sm font-bold text-ink-muted">{player?.team?.abbr}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
+                    {/* Units already show the team abbreviation, so use the slot name */}
+                    {slotKey === "OL" || slotKey === "DEF" ? ROSTER_FORMAT[slotKey].fullLabel : player?.name}
+                  </span>
+                  <span className="font-display text-sm font-bold text-ink-muted">{player?.team?.abbr}</span>
+                  <PickTag number={player?.pickNumber} className="mr-0.5" />
                 </li>
               );
             })}
